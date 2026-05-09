@@ -5,7 +5,7 @@ const { protect, committee } = require('../middleware/auth');
 
 router.get('/', protect, committee(), async (req, res) => {
   try {
-    const members = await User.find().sort({ flatNumber: 1 });
+    const members = await User.find({ isActive: true }).sort({ flatNumber: 1 });
     res.json({ success: true, count: members.length, members });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -48,8 +48,8 @@ router.put('/:id', protect, committee(), async (req, res) => {
 
 router.delete('/:id', protect, committee('chairman'), async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, { isActive: false });
-    res.json({ success: true, message: 'Member deactivated' });
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Member deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

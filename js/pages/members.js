@@ -28,7 +28,7 @@ async function renderMembers() {
                 <td>
                   <div class="action-btns">
                     <button class="btn-secondary btn-sm" onclick="editMember('${m._id}')">Edit</button>
-                    ${currentUser.role === 'chairman' && m._id !== currentUser.id ? `<button class="btn-danger btn-sm" onclick="deactivateMember('${m._id}','${m.name}')">Deactivate</button>` : ''}
+                    ${currentUser.role === 'chairman' && m._id !== currentUser.id ? `<button class="btn-danger btn-sm" onclick="deactivateMember('${m._id}','${m.name}')">Delete</button>` : ''}
                   </div>
                 </td>
               </tr>`).join('')}
@@ -140,10 +140,10 @@ async function editMember(id) {
 }
 
 function deactivateMember(id, name) {
-  confirm(`Deactivate ${name}? They will no longer have access.`, async () => {
+  confirm(`Delete ${name}? This cannot be undone.`, async () => {
     try {
       await api.delete(`/members/${id}`);
-      toast(`${name} deactivated`, 'info');
+      toast(`${name} deleted`, 'info');
       renderMembers();
     } catch (err) {
       toast(err.message, 'error');
