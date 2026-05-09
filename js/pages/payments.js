@@ -106,7 +106,7 @@ async function renderMemberPayments(container) {
       <div class="table-wrap">
         ${payments.length === 0 ? empty('No payment records yet') : `
         <table>
-          <thead><tr><th>Month</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Paid On</th><th>Method</th></tr></thead>
+          <thead><tr><th>Month</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Paid On</th><th>Method</th><th>Action</th></tr></thead>
           <tbody>
             ${payments.map(p => `
               <tr class="row-${p.status}">
@@ -116,6 +116,7 @@ async function renderMemberPayments(container) {
                 <td>${statusBadge(p.status)}</td>
                 <td>${p.status==='paid'?formatDate(p.paymentDate):'—'}</td>
                 <td style="font-size:12px">${p.paymentMethod||'—'}</td>
+                <td>${p.status !== 'paid' ? `<button class="btn-primary btn-sm" onclick="payNow('${p._id}', ${p.totalAmount}, '${monthName(p.maintenance?.month)} ${p.maintenance?.year}')">Pay Now</button>` : '<span style="color:var(--green)">✓ Paid</span>'}</td>
               </tr>`).join('')}
           </tbody>
         </table>`}
@@ -230,5 +231,52 @@ async function renderDues() {
       </div>`;
   } catch (err) {
     container.innerHTML = `<div class="form-error">${err.message}</div>`;
+  }
+}
+
+async function payNow(paymentId, amount, label) {
+  try {
+    const res = await api.post('/razorpay/create-order', { paymentId });
+    if (!res.success) return toast('Failed to create order', 'error');
+
+    const options = {
+      key: res.key,
+      amount: amount * 100,
+      currency: 'INR',
+      name: 'SocietyPro',
+      description: `Maintenance - ${label}`,
+      order_id: res.order.id,
+      handler: async function(response) {
+        try {
+          const verifyRes = await api.post('/razorpay/verify', {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            paymentId
+          });
+          if (verifyRes.success) {
+            toast('Payment successful! 🎉', 'success');
+            renderPayments();
+          }
+        } catch (err) {
+          toast('Payment verification failed', 'error');
+        }
+      },
+      prefill: {
+        name: currentUser.name,
+        email: currentUser.email
+      },
+      theme: {
+        color: '#1a3461'
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function(response) {
+      toast('Payment failed: ' + response.error.description, 'error');
+    });
+    rzp.open();
+  } catch (err) {
+    toast(err.message, 'error');
   }
 }
