@@ -11,16 +11,28 @@ const signToken = (id) => jwt.sign({ id }, 'society_secret_key_change_this', { e
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, role, flatNumber, phone, wing, floor } = req.body;
+    
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ success: false, message: 'Email already registered' });
+
+    // Check if committee role is already taken
+    const committeeRoles = ['secretary', 'treasurer', 'chairman'];
+    if (committeeRoles.includes(role)) {
+      const roleExists = await User.findOne({ role, isActive: true });
+      if (roleExists) {
+        return res.status(400).json({ success: false, message: `A ${role} is already registered. Only one ${role} is allowed.` });
+      }
+    }
+
     const user = await User.create({ name, email, password, role: role || 'member', flatNumber, phone, wing, floor });
     const token = signToken(user._id);
     res.status(201).json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role, flatNumber: user.flatNumber } });
   } catch (err) {
-    console.log('FULL ERROR:', err);  // ← add this
+    console.log('Register error:', err.message);
     res.status(400).json({ success: false, message: err.message });
   }
 });
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
