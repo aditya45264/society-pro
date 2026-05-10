@@ -42,7 +42,7 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
     const token = signToken(user._id);
-    res.json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role, flatNumber: user.flatNumber, phone: user.phone, wing: user.wing } });
+    res.json({ success: true, token, user: { id: user._id, name: user.name, email: user.email, role: user.role, customRole: user.customRole, flatNumber: user.flatNumber, phone: user.phone, wing: user.wing } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

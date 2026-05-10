@@ -33,10 +33,11 @@ router.get('/:id', protect, committee(), async (req, res) => {
 
 router.put('/:id', protect, committee(), async (req, res) => {
   try {
-    const { name, email, role, flatNumber, phone, wing, floor, isActive } = req.body;
+    const { name, email, role, flatNumber, phone, wing, floor, isActive, customRole } = req.body;
+    console.log('customRole received:', customRole);
     const member = await User.findByIdAndUpdate(
       req.params.id,
-      { name, email, role, flatNumber, phone, wing, floor, isActive },
+      { name, email, role, flatNumber, phone, wing, floor, isActive, customRole },
       { new: true, runValidators: true }
     );
     if (!member) return res.status(404).json({ success: false, message: 'Member not found' });

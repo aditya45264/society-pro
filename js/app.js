@@ -50,7 +50,7 @@ function buildNav() {
 function updateSidebarUser() {
   document.getElementById('sidebar-user').innerHTML = `
     <div class="user-name">${currentUser.name}</div>
-    <div class="user-role">${currentUser.role}</div>
+    <div class="user-role">${currentUser.customRole || currentUser.role}</div>
     <div class="user-flat">Flat ${currentUser.flatNumber}</div>`;
 }
 

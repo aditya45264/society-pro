@@ -22,7 +22,7 @@ async function renderMembers() {
                 <td>${m.wing || '—'}</td>
                 <td style="font-size:12px">${m.email}</td>
                 <td style="font-size:12px">${m.phone || '—'}</td>
-                <td>${roleBadge(m.role)}</td>
+                <td>${roleBadge(m.role)}${m.customRole ? `<span class="badge badge-member" style="margin-left:4px">${m.customRole}</span>` : ''}</td>
                 <td style="font-size:12px">${formatDate(m.joinedDate)}</td>
                 <td><span class="badge ${m.isActive ? 'badge-paid' : 'badge-overdue'}">${m.isActive ? 'Active' : 'Inactive'}</span></td>
                 <td>
@@ -105,6 +105,10 @@ async function editMember(id) {
                 <option value="chairman" ${m.role==='chairman'?'selected':''}>Chairman</option>
               </select>
             </div>
+            <div class="form-group">
+  <label>Custom Role (optional)</label>
+  <input id="em-custom-role" placeholder="e.g. Joint Secretary, Block Captain..." value="${m.customRole || ''}">
+</div>
             <div id="em-error" class="form-error hidden"></div>
           </div>
         </div>
@@ -115,24 +119,28 @@ async function editMember(id) {
       </div>`;
     openModal(html);
     document.getElementById('em-save').addEventListener('click', async () => {
-      const errEl = document.getElementById('em-error');
-      errEl.classList.add('hidden');
-      try {
-        await api.put(`/members/${id}`, {
-          name: document.getElementById('em-name').value,
-          email: document.getElementById('em-email').value,
-          flatNumber: document.getElementById('em-flat').value,
-          phone: document.getElementById('em-phone').value,
-          wing: document.getElementById('em-wing').value,
-          role: document.getElementById('em-role').value
-        });
+  console.log('Save clicked, customRole:', document.getElementById('em-custom-role').value);
+  const errEl = document.getElementById('em-error');
+  errEl.classList.add('hidden');
+  try {
+    const result = await api.put(`/members/${id}`, {
+      name: document.getElementById('em-name').value,
+      email: document.getElementById('em-email').value,
+      flatNumber: document.getElementById('em-flat').value,
+      phone: document.getElementById('em-phone').value,
+      wing: document.getElementById('em-wing').value,
+      role: document.getElementById('em-role').value,
+      customRole: document.getElementById('em-custom-role').value
+    });
+    console.log('API result:', result);
         closeModal();
         toast('Member updated!', 'success');
         renderMembers();
       } catch (err) {
-        errEl.textContent = err.message;
-        errEl.classList.remove('hidden');
-      }
+  console.log('Error:', err.message);
+  errEl.textContent = err.message;
+  errEl.classList.remove('hidden');
+}
     });
   } catch (err) {
     toast(err.message, 'error');
