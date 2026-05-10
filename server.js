@@ -1,15 +1,19 @@
 const fs = require('fs');
-const envContent = fs.readFileSync('.env', 'utf8');
-envContent.split('\n').forEach(line => {
-  line = line.trim();
-  if (!line || line.startsWith('#')) return;
-  const eqIndex = line.indexOf('=');
-  if (eqIndex > 0) {
-    const key = line.substring(0, eqIndex).trim();
-    const val = line.substring(eqIndex + 1).trim();
-    process.env[key] = val;
-  }
-});
+try {
+  const envContent = fs.readFileSync('.env', 'utf8');
+  envContent.split('\n').forEach(line => {
+    line = line.trim();
+    if (!line || line.startsWith('#')) return;
+    const eqIndex = line.indexOf('=');
+    if (eqIndex > 0) {
+      const key = line.substring(0, eqIndex).trim();
+      const val = line.substring(eqIndex + 1).trim();
+      process.env[key] = val;
+    }
+  });
+} catch(e) {
+  console.log('No .env file found, using environment variables');
+}
 
 const express = require('express');
 const mongoose = require('mongoose');
