@@ -111,7 +111,14 @@ async function renderMemberPayments(container) {
             ${payments.map(p => `
               <tr class="row-${p.status}">
                 <td><strong>${monthName(p.maintenance?.month)} ${p.maintenance?.year}</strong></td>
-                <td style="font-weight:600">${formatCurrency(p.totalAmount)}</td>
+                <td>
+                  <div style="font-weight:600">${formatCurrency(p.totalAmount)}</div>
+                  ${p.maintenance?.extraCharges && p.maintenance.extraCharges.length > 0
+                    ? `<div style="font-size:11px;color:var(--text3);margin-top:4px;line-height:1.6">
+                        ${p.maintenance.extraCharges.map(c => c.label + ': ' + formatCurrency(c.amount)).join('<br>')}
+                       </div>`
+                    : ''}
+                </td>
                 <td>${formatDate(p.maintenance?.dueDate)}</td>
                 <td>${statusBadge(p.status)}</td>
                 <td>${p.status==='paid'?formatDate(p.paymentDate):'—'}</td>

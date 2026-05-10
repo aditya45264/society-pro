@@ -26,7 +26,7 @@ router.get('/', protect, async (req, res) => {
 router.get('/my-status', protect, async (req, res) => {
   try {
     const payments = await Payment.find({ member: req.user._id })
-      .populate('maintenance', 'month year amount dueDate lateFee description')
+      .populate('maintenance', 'month year amount dueDate lateFee description extraCharges')
       .sort({ year: -1, month: -1 });
     res.json({ success: true, payments });
   } catch (err) {

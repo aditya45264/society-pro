@@ -1,14 +1,15 @@
-const ROUTES = {
-  dashboard: renderDashboard,
-  maintenance: renderMaintenance,
-  payments: renderPayments,
-  'my-payments': renderMyPayments,
-  dues: renderDues,
-  members: renderMembers,
-  notices: renderNotices,
-  profile: renderProfile
-};
-
+function getRoutes() {
+  return {
+    dashboard: renderDashboard,
+    maintenance: renderMaintenance,
+    payments: renderPayments,
+    'my-payments': renderMyPayments,
+    dues: renderDues,
+    members: renderMembers,
+    notices: renderNotices,
+    profile: renderProfile
+  };
+}
 const MEMBER_NAV = [
   { id: 'dashboard', icon: '🏠', label: 'Dashboard' },
   { id: 'my-payments', icon: '💳', label: 'My Payments' },
@@ -55,6 +56,7 @@ function updateSidebarUser() {
 }
 
 function navigateTo(page) {
+  const ROUTES = getRoutes();
   if (!ROUTES[page]) return;
   currentPage = page;
   document.querySelectorAll('#sidebar-nav a').forEach(a => {
@@ -65,7 +67,6 @@ function navigateTo(page) {
   ROUTES[page]();
   window.scrollTo(0, 0);
 }
-
 function initApp() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('main-app').classList.remove('hidden');
